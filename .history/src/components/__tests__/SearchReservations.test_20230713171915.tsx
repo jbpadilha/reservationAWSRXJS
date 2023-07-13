@@ -37,6 +37,8 @@ describe("SearchReservations", () => {
         <SearchReservations />
       </Provider>,
     );
+    // eslint-disable-next-line testing-library/no-debugging-utils
+    screen.debug();
 
     const inputs = screen.getAllByRole("textbox");
     expect(inputs[0]).toBeTruthy();
@@ -108,6 +110,12 @@ describe("SearchReservations", () => {
     const searchButton = screen.getByRole("button", { name: "btnSearch" });
     fireEvent.click(searchButton);
 
+    // Check if the getReservations function is called with the correct arguments
+    expect(getReservations).toHaveBeenCalledWith({
+      departureDate: "2023-07-31",
+      lastName: "Doe",
+      dispatch: expect.any(Function),
+    });
     useStateSpy.mockRestore();
   });
 });

@@ -85,6 +85,9 @@ describe("ModalSearchResults", () => {
 
     const closeBtn = await screen.findByTestId("CloseIconIcon");
     await fireEvent.click(closeBtn);
+
+    // eslint-disable-next-line testing-library/no-debugging-utils
+    screen.debug();
   });
 
   it("Test loading", async () => {

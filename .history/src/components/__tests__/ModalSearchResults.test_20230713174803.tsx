@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { Provider } from "react-redux";
@@ -85,6 +87,9 @@ describe("ModalSearchResults", () => {
 
     const closeBtn = await screen.findByTestId("CloseIconIcon");
     await fireEvent.click(closeBtn);
+
+    // eslint-disable-next-line testing-library/no-debugging-utils
+    screen.debug();
   });
 
   it("Test loading", async () => {

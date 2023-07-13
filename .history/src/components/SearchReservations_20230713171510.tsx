@@ -10,11 +10,12 @@ import { getReservations } from "../server/genericAPIObservable";
 
 const SearchReservations = () => {
   const { t } = useTranslation();
-  const dispatch = useDispatch();
 
   const [departureDate, setDepartureDate] = useState<Dayjs | string>("");
   const [lastName, setLasName] = useState<string>("");
   const [isOpen, setIsOpen] = useState(false);
+
+  const dispatch = useDispatch();
 
   const searchReservationHandle = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();

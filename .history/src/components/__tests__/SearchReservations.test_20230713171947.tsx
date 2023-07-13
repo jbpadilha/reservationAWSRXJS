@@ -37,6 +37,8 @@ describe("SearchReservations", () => {
         <SearchReservations />
       </Provider>,
     );
+    // eslint-disable-next-line testing-library/no-debugging-utils
+    screen.debug();
 
     const inputs = screen.getAllByRole("textbox");
     expect(inputs[0]).toBeTruthy();

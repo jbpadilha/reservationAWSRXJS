@@ -1,7 +1,6 @@
 import { Observable, catchError, from, map } from "rxjs";
 import { AxiosError } from "axios";
 import dayjs, { Dayjs } from "dayjs";
-import { AnyAction } from "redux";
 import ActionBase from "./ActionBase";
 import { GenericActions, apiResponseSuccess } from "../store/genericActions";
 import { Action } from "../interfaces/interfaces";
@@ -28,11 +27,11 @@ const reservationFetchAPI = ({
   );
 };
 
-const dispatchResult = (payload: Action): AnyAction => {
+const dispatchResult = (payload: Action) => {
   return apiResponseSuccess(GenericActions.API_GENERIC_SUCCESS, payload);
 };
 
-const dispatchError = (payload: Action): AnyAction => {
+const dispatchError = (payload: Action) => {
   return apiResponseSuccess(GenericActions.API_GENERIC_ERROR, payload);
 };
 
@@ -43,7 +42,7 @@ export const getReservations = ({
   departureDate: Dayjs | string;
   lastName: string;
 }) => {
-  let returnDispatch: AnyAction = { type: "" };
+  let returnDispatch = {};
   const payload: Action = {
     type: GenericActions.FETCH_RESERVATION,
   };

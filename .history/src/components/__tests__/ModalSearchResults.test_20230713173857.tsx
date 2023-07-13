@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { Provider } from "react-redux";
@@ -72,40 +74,9 @@ describe("ModalSearchResults", () => {
         <ModalSearchResults isOpen onClose={jest.fn()} />
       </Provider>,
     );
+    // eslint-disable-next-line testing-library/no-debugging-utils
+    screen.debug();
     const inputs = screen.getAllByRole("textbox");
     expect(inputs[0]).toBeTruthy();
-  });
-
-  it("checking close Modal Btn", async () => {
-    render(
-      <Provider store={store}>
-        <ModalSearchResults isOpen onClose={jest.fn()} />
-      </Provider>,
-    );
-
-    const closeBtn = await screen.findByTestId("CloseIconIcon");
-    await fireEvent.click(closeBtn);
-  });
-
-  it("Test loading", async () => {
-    store = mockStore({
-      generic: {
-        openMessageModal: false,
-        loading: true,
-        reservations: [],
-      },
-    });
-    store.dispatch = jest.fn();
-    render(
-      <Provider store={store}>
-        <ModalSearchResults isOpen onClose={jest.fn()} />
-      </Provider>,
-    );
-
-    // Assert that the loading spinner is displayed
-    const loadingSpinner = await waitFor(() =>
-      screen.findByTestId("loading-spinner"),
-    );
-    await waitFor(() => expect(loadingSpinner).toBeTruthy());
   });
 });
