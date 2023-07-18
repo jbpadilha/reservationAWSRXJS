@@ -26,7 +26,7 @@ const ResultsTable = () => {
     useSelector(currentValues);
 
   const [isOpen, setIsOpen] = useState(false);
-  const [currReservation, setCurrReservation] = useState<Reservation[] | null>(
+  const [currReservation, setCurrReservation] = useState<Reservation | null>(
     null,
   );
 
@@ -38,7 +38,7 @@ const ResultsTable = () => {
         (r) =>
           r.stay?.departureDate === departureDate && r.lastName === lastName,
       );
-      setCurrReservation(resFilter);
+      setCurrReservation(resFilter[0]);
       setIsOpen(true);
     };
 
@@ -76,8 +76,8 @@ const ResultsTable = () => {
                 <Button
                   variant="contained"
                   onClick={searchReservationHandle(
-                    res.stay?.departureDate,
-                    res.lastName,
+                    res.stay?.departureDate || "",
+                    res.lastName || "",
                   )}
                 >
                   {t("Edit")}

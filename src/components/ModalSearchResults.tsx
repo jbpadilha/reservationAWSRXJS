@@ -18,23 +18,15 @@ import {
   Typography,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import { createSelector } from "@reduxjs/toolkit";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
 import { CloseIcon } from "./Icons";
-import { RootState } from "../store/store";
 import { roomSizes } from "../config/constants";
 import { CommonTypeOptions } from "../interfaces/interfaces";
 import { editReservation } from "../server/genericAPIObservable";
-
-const currentValues = createSelector(
-  (state: RootState) => state.generic.loading,
-  (loading) => ({
-    loading,
-  }),
-);
+import Reservation from "../models/Reservation";
 
 const ModalSearchResults = ({
   isOpen,
@@ -43,25 +35,168 @@ const ModalSearchResults = ({
 }: {
   isOpen: boolean;
   onClose: any;
-  currReservation: any;
+  currReservation: Reservation | null;
 }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const { loading }: { loading: boolean } = useSelector(currentValues);
+  const [isLoading, setIsLoading] = useState(true);
+  const [newReservation, setNewReservation] = useState<Reservation | null>(
+    currReservation,
+  );
 
-  const [arrivalDate, setArrivalDate] = useState<Dayjs>();
-  const [departureDate, setDepartureDate] = useState<Dayjs>();
+  const [arrivalDate, setArrivalDate] = useState<Dayjs | string>("");
+  const [departureDate, setDepartureDate] = useState<Dayjs | string>("");
 
   useEffect(() => {
     if (isOpen && currReservation) {
-      setArrivalDate(dayjs(currReservation.stay?.arrivalDate));
-      setDepartureDate(dayjs(currReservation.stay?.departureDate));
+      // setArrivalDate(dayjs(currReservation.stay?.arrivalDate || ""));
+      // setDepartureDate(dayjs(currReservation.stay?.departureDate || ""));
+      setIsLoading(false);
     }
   }, [currReservation, isOpen]);
 
   const editReservationHandle = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    dispatch(editReservation(currReservation));
+    if (newReservation) {
+      const reservationPayload: Reservation = {
+        ...newReservation,
+        departureDateFind: currReservation?.stay?.departureDate,
+        lastNameFind: currReservation?.lastName,
+      };
+      dispatch(editReservation({ reservation: reservationPayload }));
+    }
+  };
+
+  const handleChangeHandle = (type: string) => (e: any) => {
+    e.preventDefault();
+    const selectedValue = e.target.value;
+    switch (type) {
+      case "dateOfArrival": {
+        setArrivalDate(dayjs(selectedValue));
+        break;
+      }
+      case "dateOfDeparture": {
+        setDepartureDate(dayjs(selectedValue));
+        break;
+      }
+      case "roomSize": {
+        setNewReservation({
+          ...newReservation,
+          room: {
+            roomSize: selectedValue,
+          },
+        });
+        break;
+      }
+      case "roomQuantity": {
+        setNewReservation({
+          ...newReservation,
+          room: {
+            roomQuantity: selectedValue,
+          },
+        });
+        break;
+      }
+      case "firstName": {
+        setNewReservation({
+          ...newReservation,
+          firstName: selectedValue,
+        });
+        break;
+      }
+      case "lastName": {
+        setNewReservation({
+          ...newReservation,
+          lastName: selectedValue,
+        });
+        break;
+      }
+      case "email": {
+        setNewReservation({
+          ...newReservation,
+          email: selectedValue,
+        });
+        break;
+      }
+      case "phoneNumber": {
+        setNewReservation({
+          ...newReservation,
+          phone: selectedValue,
+        });
+        break;
+      }
+      case "streetName": {
+        setNewReservation({
+          ...newReservation,
+          addressStreet: {
+            streetName: selectedValue,
+          },
+        });
+        break;
+      }
+      case "streetNumber": {
+        setNewReservation({
+          ...newReservation,
+          addressStreet: {
+            streetNumber: selectedValue,
+          },
+        });
+        break;
+      }
+      case "zip": {
+        setNewReservation({
+          ...newReservation,
+          addressLocation: {
+            zipCode: selectedValue,
+          },
+        });
+        break;
+      }
+      case "state": {
+        setNewReservation({
+          ...newReservation,
+          addressLocation: {
+            state: selectedValue,
+          },
+        });
+        break;
+      }
+      case "city": {
+        setNewReservation({
+          ...newReservation,
+          addressLocation: {
+            city: selectedValue,
+          },
+        });
+        break;
+      }
+      case "extras": {
+        setNewReservation({
+          ...newReservation,
+          extras: selectedValue,
+        });
+        break;
+      }
+      case "payment": {
+        setNewReservation({
+          ...newReservation,
+          payment: selectedValue,
+        });
+        break;
+      }
+      case "personalNote": {
+        setNewReservation({
+          ...newReservation,
+          note: selectedValue,
+        });
+        break;
+      }
+      case "tags": {
+        break;
+      }
+
+      default:
+    }
   };
 
   return (
@@ -108,33 +243,36 @@ const ModalSearchResults = ({
               </Grid>
             </Grid>
           </Grid>
-          {loading && (
+          {isLoading && (
             <Grid item xs={12}>
               <CircularProgress data-testid="loading-spinner" />
             </Grid>
           )}
-          {!loading && currReservation && currReservation.length > 0 && (
+          {!isLoading && currReservation && (
             <FormControl sx={{ m: 1, width: "100%" }} variant="filled">
               <Grid item xs={12} sx={{ marginTop: 2 }}>
                 <Grid container>
                   <Grid item xs={6} sx={{ paddingRight: 2 }}>
                     <DatePicker
-                      defaultValue={arrivalDate || undefined}
+                      value={arrivalDate}
                       label={t("dateOfArrival")}
+                      onChange={handleChangeHandle("dateOfArrival")}
                     />
                   </Grid>
                   <Grid item xs={6}>
                     <DatePicker
-                      defaultValue={departureDate || undefined}
+                      value={departureDate || undefined}
                       label={t("dateOfDeparture")}
+                      onChange={handleChangeHandle("dateOfDeparture")}
                     />
                   </Grid>
                   <Grid item xs={6} sx={{ marginTop: 2 }}>
                     <TextField
                       select
                       label={t("roomSize")}
-                      defaultValue={roomSizes[0].value}
+                      value={roomSizes[0].value}
                       helperText=""
+                      onChange={handleChangeHandle("roomSize")}
                     >
                       {roomSizes.map((option: CommonTypeOptions) => (
                         <MenuItem key={option.value} value={option.value}>
@@ -146,89 +284,96 @@ const ModalSearchResults = ({
                   <Grid item xs={6} sx={{ marginTop: 2 }}>
                     <TextField
                       label={t("roomQuantity")}
-                      defaultValue={currReservation[0].room?.roomQuantity}
+                      value={currReservation.room?.roomQuantity}
                       helperText={`${t("maximum")}: 5`}
                       variant="standard"
+                      onChange={handleChangeHandle("roomQuantity")}
                     />
                   </Grid>
                   <Grid item xs={12} sx={{ marginTop: 2 }}>
                     <TextField
                       label={t("firstName")}
                       FormHelperTextProps={{ style: { textAlign: "end" } }}
-                      defaultValue={currReservation[0].firstName}
-                      helperText={`${currReservation[0].firstName?.length}/25`}
+                      value={currReservation.firstName}
+                      helperText={`${currReservation.firstName?.length}/25`}
                       variant="standard"
+                      onChange={handleChangeHandle("firstName")}
                     />
                   </Grid>
                   <Grid item xs={12} sx={{ marginTop: 2 }}>
                     <TextField
                       label={t("lastName")}
                       FormHelperTextProps={{ style: { textAlign: "end" } }}
-                      defaultValue={currReservation[0].lastName}
-                      helperText={`${currReservation[0].lastName?.length}/50`}
+                      value={currReservation.lastName}
+                      helperText={`${currReservation.lastName?.length}/50`}
                       variant="standard"
+                      onChange={handleChangeHandle("lastName")}
                     />
                   </Grid>
                   <Grid item xs={12} sx={{ marginTop: 2 }}>
                     <TextField
                       label={t("email")}
-                      defaultValue={currReservation[0].email}
+                      value={currReservation.email}
                       variant="standard"
+                      onChange={handleChangeHandle("email")}
                     />
                   </Grid>
                   <Grid item xs={12} sx={{ marginTop: 2 }}>
                     <TextField
                       label={t("phoneNumber")}
-                      defaultValue={`+${currReservation[0].phone}`}
+                      value={`+${currReservation.phone}`}
                       helperText={t("addYourCountryCode")}
                       variant="standard"
+                      onChange={handleChangeHandle("phoneNumber")}
                     />
                   </Grid>
                   <Grid item xs={6} sx={{ marginTop: 2 }}>
                     <TextField
                       label={t("streetName")}
-                      defaultValue={
-                        currReservation[0].addressStreet?.streetName
-                      }
+                      value={currReservation.addressStreet?.streetName}
                       variant="standard"
+                      onChange={handleChangeHandle("streetName")}
                     />
                   </Grid>
                   <Grid item xs={6} sx={{ marginTop: 2 }}>
                     <TextField
                       label={t("streetNumber")}
-                      defaultValue={
-                        currReservation[0].addressStreet?.streetNumber
-                      }
+                      value={currReservation.addressStreet?.streetNumber}
                       variant="standard"
+                      onChange={handleChangeHandle("streetNumber")}
                     />
                   </Grid>
                   <Grid item xs={4} sx={{ marginTop: 2 }}>
                     <TextField
                       label={t("zip")}
-                      defaultValue={currReservation[0].addressLocation?.zipCode}
+                      value={currReservation.addressLocation?.zipCode}
                       variant="standard"
+                      onChange={handleChangeHandle("zip")}
                     />
                   </Grid>
                   <Grid item xs={4} sx={{ marginTop: 2 }}>
                     <TextField
                       label={t("state")}
-                      defaultValue={`+${currReservation[0].addressLocation?.state}`}
+                      value={`+${currReservation.addressLocation?.state}`}
                       variant="standard"
                       helperText={t("autocomplete")}
+                      onChange={handleChangeHandle("state")}
                     />
                   </Grid>
                   <Grid item xs={4} sx={{ marginTop: 2 }}>
                     <TextField
                       label={t("city")}
-                      defaultValue={currReservation[0].addressLocation?.city}
+                      value={currReservation.addressLocation?.city}
                       variant="standard"
+                      onChange={handleChangeHandle("city")}
                     />
                   </Grid>
                   <Grid item xs={12} sx={{ marginTop: 2 }}>
                     <TextField
                       label={t("extras")}
-                      defaultValue={currReservation[0].extras?.join(",")}
+                      value={currReservation.extras?.join(",")}
                       variant="standard"
+                      onChange={handleChangeHandle("extras")}
                     />
                   </Grid>
                   <Grid item xs={12} sx={{ marginTop: 2 }}>
@@ -236,7 +381,8 @@ const ModalSearchResults = ({
                       row
                       aria-labelledby="demo-row-radio-buttons-group-label"
                       name="row-radio-buttons-group"
-                      value={currReservation[0].payment}
+                      value={currReservation.payment}
+                      onChange={handleChangeHandle("payment")}
                     >
                       <FormControlLabel
                         value="cc"
@@ -263,8 +409,9 @@ const ModalSearchResults = ({
                   <Grid item xs={12} sx={{ marginTop: 2 }}>
                     <TextField
                       label={t("personalNote")}
-                      defaultValue={currReservation[0].note}
+                      value={currReservation.note}
                       variant="standard"
+                      onChange={handleChangeHandle("personalNote")}
                     />
                   </Grid>
                   <Grid item xs={12} sx={{ marginTop: 2 }}>
@@ -274,8 +421,8 @@ const ModalSearchResults = ({
                     >
                       {t("tags")}
                     </FormLabel>
-                    {currReservation[0].tags &&
-                      currReservation[0].tags.map((tag: string) => (
+                    {currReservation.tags &&
+                      currReservation.tags.map((tag: string) => (
                         <Chip
                           key={tag}
                           label={t(tag)}
@@ -287,14 +434,12 @@ const ModalSearchResults = ({
                   <Grid item xs={12} sx={{ marginTop: 2 }}>
                     <FormGroup>
                       <FormControlLabel
-                        control={
-                          <Switch checked={currReservation[0].reminder} />
-                        }
+                        control={<Switch checked={currReservation.reminder} />}
                         label={t("sendReminder")}
                       />
                       <FormControlLabel
                         control={
-                          <Switch checked={currReservation[0].newsletter} />
+                          <Switch checked={currReservation.newsletter} />
                         }
                         label={t("subscribeNewsletter")}
                       />
@@ -302,9 +447,7 @@ const ModalSearchResults = ({
                   </Grid>
                   <Grid item xs={12} sx={{ marginTop: 2 }}>
                     <FormControlLabel
-                      control={
-                        <Checkbox checked={currReservation[0].confirm} />
-                      }
+                      control={<Checkbox checked={currReservation.confirm} />}
                       label={t("iConfirmInfo")}
                     />
                   </Grid>
@@ -312,7 +455,7 @@ const ModalSearchResults = ({
               </Grid>
               <Grid item xs={12} sx={{ marginTop: 2 }}>
                 <Grid container>
-                 <Grid item xs={6}>
+                  <Grid item xs={6}>
                     <Button variant="contained" onClick={onClose}>
                       {t("cancel")}
                     </Button>
