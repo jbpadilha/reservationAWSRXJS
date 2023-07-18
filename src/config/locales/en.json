@@ -32,5 +32,9 @@
     "business-suite": "Business Suite",
     "maximum": "Maximum",
     "addYourCountryCode": "Add your country code first",
-    "autocomplete": "Autocomplete"
+    "autocomplete": "Autocomplete",
+    "listOfReservations": "List of Reservations",
+    "actions": "Actions",
+    "edit": "Edit",
+    "cancel": "Cancel"
 }

@@ -5,8 +5,8 @@ import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { useDispatch } from "react-redux";
 import { Dayjs } from "dayjs";
-import ModalSearchResults from "./ModalSearchResults";
 import { getReservations } from "../server/genericAPIObservable";
+import ResultsTable from "./ResultsTable";
 
 const SearchReservations = () => {
   const { t } = useTranslation();
@@ -14,12 +14,15 @@ const SearchReservations = () => {
 
   const [departureDate, setDepartureDate] = useState<Dayjs | string>("");
   const [lastName, setLasName] = useState<string>("");
-  const [isOpen, setIsOpen] = useState(false);
-
+  const [isShowResults, setIsShowResults] = useState(false);
   const searchReservationHandle = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     dispatch(getReservations({ departureDate, lastName }));
-    setIsOpen(true);
+    if (departureDate !== "" && lastName !== "") {
+      setIsShowResults(false);
+    } else {
+      setIsShowResults(true);
+    }
   };
 
   return (
@@ -84,7 +87,7 @@ const SearchReservations = () => {
           </Grid>
         </Grid>
       </Grid>
-      <ModalSearchResults isOpen={isOpen} onClose={() => setIsOpen(!isOpen)} />
+      {isShowResults && <ResultsTable />}
     </LocalizationProvider>
   );
 };
